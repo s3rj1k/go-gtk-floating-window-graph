@@ -5,6 +5,7 @@ package main
 import (
 	"log"
 
+	"github.com/gotk3/gotk3/cairo"
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -21,15 +22,30 @@ func main() {
 		gtk.MainQuit()
 	})
 
-	label, err := gtk.LabelNew("Drag using middle mouse button")
-	if err != nil {
-		log.Fatalf("Unable to create label: %v", err)
-	}
+	// label, err := gtk.LabelNew("Drag using middle mouse button")
+	// if err != nil {
+	// 	log.Fatalf("Unable to create label: %v", err)
+	// }
 
 	eventBox, err := gtk.EventBoxNew()
 	if err != nil {
 		log.Fatalf("Unable to create event box: %v", err)
 	}
+
+	da, err := gtk.DrawingAreaNew()
+	if err != nil {
+		log.Fatalf("Unable to create drawing area: %v", err)
+	}
+
+	unitSize := 20.0
+	x := 0.0
+	y := 0.0
+
+	da.Connect("draw", func(da *gtk.DrawingArea, cr *cairo.Context) {
+		cr.SetSourceRGB(0, 0, 0)
+		cr.Rectangle(x*unitSize, y*unitSize, unitSize, unitSize)
+		cr.Fill()
+	})
 
 	eventBox.Connect("button-press-event", func(tree *gtk.EventBox, event *gdk.Event) bool {
 		button := gdk.EventButtonNewFromEvent(event)
@@ -52,9 +68,11 @@ func main() {
 		}
 	})
 
-	eventBox.Add(label)
+	// eventBox.Add(label)
+	eventBox.Add(da)
 
 	window.Add(eventBox)
+
 	window.SetTitle("Undecorated")
 	window.SetDefaultSize(800, 600)
 	window.SetDecorated(false)
